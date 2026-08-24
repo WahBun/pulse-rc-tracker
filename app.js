@@ -247,7 +247,7 @@ function analyzeRewards() {
   };
   const welcomeSpend = welcomeSpendByCurrency.HKD + welcomeSpendByCurrency.RMB;
   const welcomeReached = welcomeSpend >= 8000;
-  const welcomeBonus = welcomeReached ? 1800 : 0;
+  const welcomeBonus = welcomeReached ? 800 : 0;
   const redHot = allocateCappedRewards(sorted, canUseRedHot, 100000, RED_HOT_EXTRA_RATE);
   const pulse = allocateCappedRewards(sorted, canUsePulseExtra, 80000, PULSE_EXTRA_RATE);
   const months = new Map();

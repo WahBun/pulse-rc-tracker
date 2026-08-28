@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="theme-color" content="#10120f" />
+    <meta name="description" content="记录 Prop Firm 买号成本、出金和 USD 总盈亏。" />
+    <title>Prop Firm 记账</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="top-card">
+        <div class="top-row">
+          <span class="label">Prop Firm</span>
+          <span class="status" id="status">准备记录</span>
+        </div>
+        <h1>当前总盈亏</h1>
+        <strong class="total" id="total">USD 0</strong>
+      </section>
+
+      <section class="metrics" aria-label="汇总">
+        <div>
+          <span>出金</span>
+          <strong id="payoutTotal">USD 0</strong>
+        </div>
+        <div>
+          <span>买号</span>
+          <strong id="costTotal">USD 0</strong>
+        </div>
+        <div>
+          <span>笔数</span>
+          <strong id="entryCount">0</strong>
+        </div>
+      </section>
+
+      <form class="panel" id="entryForm">
+        <div class="segmented" role="group" aria-label="记录类型">
+          <button class="active danger" type="button" data-type="cost">买号成本</button>
+          <button type="button" data-type="payout">出金记录</button>
+        </div>
+        <div class="entry-row">
+          <input id="amount" inputmode="decimal" placeholder="输入金额 USD" autocomplete="off" />
+          <button type="submit">记录</button>
+        </div>
+      </form>
+
+      <section class="panel records-panel">
+        <div class="panel-head">
+          <h2>流水记录</h2>
+          <button id="clearAll" type="button">清空</button>
+        </div>
+        <div class="records" id="records"></div>
+      </section>
+    </main>
+    <script src="./app.js"></script>
+  </body>
+</html>

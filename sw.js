@@ -1,4 +1,5 @@
-const CACHE_NAME = "pulse-rc-github-pages-v22";
+const CACHE_NAME = "pulse-rc-github-pages-v23";
+const OPTION_TRAINER_VERSION = "ost-v23";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -8,8 +9,8 @@ const APP_SHELL = [
   "./app-icon.svg",
   "./options-strategy-trainer/",
   "./options-strategy-trainer/index.html",
-  "./options-strategy-trainer/styles.css",
-  "./options-strategy-trainer/app.js",
+  `./options-strategy-trainer/styles.css?v=${OPTION_TRAINER_VERSION}`,
+  `./options-strategy-trainer/app.js?v=${OPTION_TRAINER_VERSION}`,
 ];
 
 self.addEventListener("install", (event) => {
@@ -34,13 +35,35 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request)
+  const request = event.request;
+  const wantsFreshCopy =
+    request.mode === "navigate" ||
+    ["document", "script", "style", "worker"].includes(request.destination);
+
+  if (wantsFreshCopy) {
+    event.respondWith(
+      fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          if (response && response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request).then((cached) => cached || caches.match("./index.html"))),
+    );
+    return;
+  }
+
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      if (cached) return cached;
+      return fetch(request)
+        .then((response) => {
+          if (response && response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
           return response;
         })
         .catch(() => caches.match("./index.html"));

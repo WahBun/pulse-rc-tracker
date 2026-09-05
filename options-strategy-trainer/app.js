@@ -47,6 +47,11 @@ const strategies = {
     structure: "买入 ATM 或略 OTM 的 Call。",
     profit: "赚标的快速上涨的钱；IV 上升时，期权变贵也可能帮你赚钱。",
     loss: "亏权利金和时间损耗；标的不涨、涨太慢，或 IV 回落都会拖后腿。",
+    expiration: [
+      "到期价 <= Call 行权价：Call 归零，最大亏损 = 支付的权利金。",
+      "到期价 > Call 行权价：盈亏 = 到期价 - 行权价 - 权利金。",
+      "盈亏平衡点 = Call 行权价 + 权利金；再往上就是主要利润来源。"
+    ],
     why: "适合强看涨且 IV 偏低时，用有限权利金换取向上凸性。",
     avoid: "IV 已经很高、只小幅看涨，或时间不站在你这边时，不适合裸买 Call。",
     greeks: { Delta: "+", Gamma: "+", Theta: "-", Vega: "+" },
@@ -60,6 +65,11 @@ const strategies = {
     structure: "买入较低执行价 Call（ATM/略 ITM）+ 卖出较高执行价 OTM Call。",
     profit: "赚价格向目标价上涨的钱；卖出的上方 Call 帮你少付一部分权利金。",
     loss: "亏净支出的权利金；涨不够或涨太慢会被时间损耗吃掉，上方收益也被封顶。",
+    expiration: [
+      "到期价 <= 买入 Call 行权价：最大亏损 = 净支出的权利金。",
+      "到期价 >= 卖出 Call 行权价：最大盈利 = 两个行权价宽度 - 净支出的权利金。",
+      "中间区间：价格越靠近卖出 Call，利润越接近上限。"
+    ],
     why: "适合看涨但不想为高 IV 付太多权利金，用卖出上方 Call 降低成本。",
     avoid: "如果你预期会大幅突破上方行权价，价差会限制最大收益。",
     greeks: { Delta: "+", Gamma: "+/0", Theta: "-/0", Vega: "+/0" },
@@ -73,6 +83,11 @@ const strategies = {
     structure: "卖出较高执行价 OTM Put + 买入更低执行价 OTM Put；这是两条 Put 腿，不用 Call。",
     profit: "赚卖出 Put 收到的权利金，主要来自时间流逝和 IV 回落。",
     loss: "亏价格跌破卖出 Put 后的价差风险；急跌会让短 Gamma 变得很难受。",
+    expiration: [
+      "到期价 >= 卖出 Put 行权价：两个 Put 都归零，保留净权利金 = 最大盈利。",
+      "到期价 <= 买入 Put 行权价：最大亏损 = 两个行权价宽度 - 净权利金。",
+      "中间区间：盈亏 = 净权利金 - 卖出 Put 的内在价值。"
+    ],
     why: "适合温和看涨或不看跌，尤其在 IV 偏高时用时间价值换取胜率。",
     avoid: "如果你认为标的可能快速跌破卖出 Put，信用价差会很难管理。",
     greeks: { Delta: "+", Gamma: "-", Theta: "+", Vega: "-" },
@@ -86,6 +101,11 @@ const strategies = {
     structure: "卖出 OTM Put，并预留足够现金准备被指派接货。",
     profit: "赚卖 Put 的权利金和时间价值；如果接货后反弹，也赚正股回升的钱。",
     loss: "亏标的跌破接货价后的正股风险；收到的权利金只能缓冲一部分下跌。",
+    expiration: [
+      "到期价 >= Put 行权价：Put 归零，保留权利金 = 最大期权盈利。",
+      "到期价 < Put 行权价：可能被指派买入正股，实际成本 = 行权价 - 权利金。",
+      "若接货后继续下跌，亏损来自正股下跌；权利金只是缓冲垫。"
+    ],
     why: "适合看涨或愿意更低价格买入正股，IV 偏高时能收取更厚权利金。",
     avoid: "如果你不愿意接货，或标的基本面可能快速恶化，不该用这个结构。",
     greeks: { Delta: "+", Gamma: "-", Theta: "+", Vega: "-" },
@@ -99,6 +119,11 @@ const strategies = {
     structure: "买入 ATM 或略 OTM 的 Put。",
     profit: "赚标的快速下跌的钱；IV 上升时，Put 变贵也可能帮你赚钱。",
     loss: "亏权利金和时间损耗；不跌、跌太慢，或 IV 回落都会伤害这笔交易。",
+    expiration: [
+      "到期价 >= Put 行权价：Put 归零，最大亏损 = 支付的权利金。",
+      "到期价 < Put 行权价：盈亏 = 行权价 - 到期价 - 权利金。",
+      "盈亏平衡点 = Put 行权价 - 权利金；再往下才是真正盈利。"
+    ],
     why: "适合强看跌且 IV 偏低时，用有限权利金表达下跌观点。",
     avoid: "IV 高或只是温和看跌时，权利金成本可能吞掉判断优势。",
     greeks: { Delta: "-", Gamma: "+", Theta: "-", Vega: "+" },
@@ -112,6 +137,11 @@ const strategies = {
     structure: "买入较高执行价 Put（ATM/略 ITM）+ 卖出较低执行价 OTM Put。",
     profit: "赚价格下跌到目标区间的钱；卖出的下方 Put 帮你降低成本。",
     loss: "亏净支出的权利金；跌不够或跌太慢会输给时间，暴跌收益也被封顶。",
+    expiration: [
+      "到期价 >= 买入 Put 行权价：最大亏损 = 净支出的权利金。",
+      "到期价 <= 卖出 Put 行权价：最大盈利 = 两个行权价宽度 - 净支出的权利金。",
+      "中间区间：价格越靠近卖出 Put，利润越接近上限。"
+    ],
     why: "适合看跌但希望控制成本，卖出更低行权价 Put 抵消一部分 IV 和时间成本。",
     avoid: "如果你预期会暴跌，价差会限制下方收益。",
     greeks: { Delta: "-", Gamma: "+/0", Theta: "-/0", Vega: "+/0" },
@@ -125,6 +155,11 @@ const strategies = {
     structure: "卖出较低执行价 OTM Call + 买入更高执行价 OTM Call。",
     profit: "赚卖出 Call 收到的权利金，来自时间流逝、IV 回落，以及价格留在卖出 Call 下方。",
     loss: "亏价格突破卖出 Call 后的上方价差风险；急涨会让短 Gamma 变得很痛。",
+    expiration: [
+      "到期价 <= 卖出 Call 行权价：两个 Call 都归零，保留净权利金 = 最大盈利。",
+      "到期价 >= 买入 Call 行权价：最大亏损 = 两个行权价宽度 - 净权利金。",
+      "中间区间：盈亏 = 净权利金 - 卖出 Call 的内在价值。"
+    ],
     why: "适合温和看跌或不看涨，IV 偏高时通过卖出上方 Call 收取权利金。",
     avoid: "如果标的可能快速突破卖出 Call，亏损会放大到价差上限。",
     greeks: { Delta: "-", Gamma: "-", Theta: "+", Vega: "-" },
@@ -138,6 +173,11 @@ const strategies = {
     structure: "持有正股 + 买入 ATM 或 OTM Put 做下方保护。",
     profit: "主要不是为了赚期权钱，而是下跌时用 Put 对冲正股亏损；正股继续涨时仍赚正股上涨。",
     loss: "亏保险费和时间损耗；如果没跌，Put 可能慢慢归零。",
+    expiration: [
+      "到期价 >= Put 行权价：Put 归零，正股继续参与上涨，但亏掉保险费。",
+      "到期价 < Put 行权价：Put 增值，帮助抵消正股下跌。",
+      "保护底线大致 = Put 行权价 - Put 权利金；本质是给正股买保险。"
+    ],
     why: "适合已有正股但担心下跌，用 Put 给仓位加一个明确的下方保护。",
     avoid: "如果 IV 很高且只是轻微担心，保险费可能过贵。",
     greeks: { Delta: "+/0", Gamma: "+", Theta: "-", Vega: "+" },
@@ -151,6 +191,11 @@ const strategies = {
     structure: "持有正股 + 买入 OTM Put + 卖出 OTM Call。",
     profit: "赚正股在保护区间内上涨的钱；卖 Call 的权利金用来抵消 Put 保险费。",
     loss: "亏保险净成本和正股下跌的剩余风险；大涨时，上方收益会被卖出的 Call 封住。",
+    expiration: [
+      "到期价 >= 卖出 Call 行权价：正股上方收益被封顶，通常在 Call 行权价附近锁定结果。",
+      "到期价 <= 买入 Put 行权价：Put 提供下方保护，亏损被限制在保护线附近。",
+      "中间区间：主要跟随正股涨跌，再扣掉 Put 与 Call 的净成本或净收入。"
+    ],
     why: "适合已有正股、想保护下跌，同时愿意卖出上方收益来降低保险成本。",
     avoid: "如果你不愿意牺牲大涨空间，就不适合卖出上方 Call。",
     greeks: { Delta: "+/0", Gamma: "0", Theta: "+/0", Vega: "-/0" },
@@ -164,6 +209,11 @@ const strategies = {
     structure: "持有正股 + 卖出 OTM Call。",
     profit: "赚正股小涨或横盘的钱，再加上卖 Call 收到的权利金和时间价值。",
     loss: "亏正股下跌的钱；大涨时，超过行权价的收益让给买 Call 的人。",
+    expiration: [
+      "到期价 <= 卖出 Call 行权价：Call 归零，保留权利金，继续持有正股。",
+      "到期价 > 卖出 Call 行权价：可能按行权价卖出正股，上方收益被封顶。",
+      "最大风险仍来自正股下跌；权利金只能降低一点持仓成本。"
+    ],
     why: "适合已有正股、温和看涨或横盘，用卖出 Call 增加收入。",
     avoid: "如果你不愿意在行权价卖出股票，或预期会急涨，不适合备兑。",
     greeks: { Delta: "+", Gamma: "-", Theta: "+", Vega: "-" },
@@ -177,6 +227,11 @@ const strategies = {
     structure: "卖出 OTM Put + 买入更低 OTM Put，同时卖出 OTM Call + 买入更高 OTM Call。",
     profit: "赚上下两侧卖出期权的权利金，主要来自时间流逝和 IV 回落。",
     loss: "亏价格突破区间后的单侧价差风险；大波动和 IV 上升都不利。",
+    expiration: [
+      "到期价留在卖出 Put 和卖出 Call 之间：四条腿大多归零，保留净权利金 = 最大盈利。",
+      "跌破买入 Put 或涨破买入 Call：触发单侧最大亏损 = 单侧价差宽度 - 净权利金。",
+      "落在任一卖出腿和保护腿之间：进入部分亏损或小盈利区间。"
+    ],
     why: "适合中性观点且 IV 偏高，卖出上下两侧区间来收取时间价值。",
     avoid: "如果你预期会出现单边大波动，铁鹰容易被突破。",
     greeks: { Delta: "0", Gamma: "-", Theta: "+", Vega: "-" },
@@ -190,6 +245,11 @@ const strategies = {
     structure: "同一执行价附近，买入远月 Call/Put + 卖出近月同方向 Call/Put，常放在 ATM 附近。",
     profit: "赚近月期权更快衰减的钱，也可能赚远月 Vega；价格停在中心附近最舒服。",
     loss: "亏价格离开中心太远的钱；期限结构变化或远月 IV 下跌也会伤害远月腿。",
+    expiration: [
+      "近月到期时价格靠近共同执行价：卖出的近月腿衰减最快，通常是最理想结果。",
+      "价格快速远离执行价：远月腿虽然还在，但整体优势会变差。",
+      "最终盈亏不只看到期价，还取决于远月剩余时间和远月 IV。"
+    ],
     why: "适合中性或温和方向、近月 IV 较高而远月相对合理时，利用时间结构。",
     avoid: "如果价格可能迅速远离中心行权价，日历价差会失去优势。",
     greeks: { Delta: "0/+", Gamma: "-", Theta: "+", Vega: "+" },
@@ -203,6 +263,11 @@ const strategies = {
     structure: "买入 ATM Call + 买入 ATM Put。",
     profit: "赚大波动的钱，不管向上还是向下；IV 上升也有利。",
     loss: "亏双边权利金和时间损耗；如果价格不动，两边期权都会慢慢缩水。",
+    expiration: [
+      "到期价大幅高于执行价：Call 的内在价值覆盖双边权利金后盈利。",
+      "到期价大幅低于执行价：Put 的内在价值覆盖双边权利金后盈利。",
+      "到期价留在两个盈亏平衡点之间：波动不够，亏掉部分或全部权利金。"
+    ],
     why: "适合 IV 偏低但预期会出现大波动，方向不确定也可以表达波动观点。",
     avoid: "如果 IV 已经很高或预期只是小幅震荡，时间损耗会很重。",
     greeks: { Delta: "0", Gamma: "+", Theta: "-", Vega: "+" },
@@ -372,6 +437,12 @@ function strategyCard(key, options = {}) {
         <p>${strategy.loss}</p>
       </div>
     </div>
+    <div class="field-block expiration-block">
+      <h3>到期盈亏 (Expiration P/L)</h3>
+      <ul class="expiration-list">
+        ${strategy.expiration.map((line) => `<li>${line}</li>`).join("")}
+      </ul>
+    </div>
     <div class="field-block">
       <h3>Why</h3>
       <p>${strategy.why}</p>
@@ -526,6 +597,12 @@ function renderLibrary() {
             <p><strong>赚：</strong>${item.profit}</p>
             <p><strong>亏：</strong>${item.loss}</p>
           </div>
+          <details class="library-expiration">
+            <summary>查看到期盈亏</summary>
+            <ul class="expiration-list">
+              ${item.expiration.map((line) => `<li>${line}</li>`).join("")}
+            </ul>
+          </details>
           <p>${item.why}</p>
           <div class="library-meta">
             ${greekTags(item.greeks)}

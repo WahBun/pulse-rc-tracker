@@ -472,6 +472,21 @@ h3 {
   color: var(--ink);
 }
 
+.expiration-block {
+  padding-bottom: 18px;
+}
+
+.expiration-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.expiration-list li {
+  color: var(--ink);
+}
+
 .tag-row {
   display: flex;
   flex-wrap: wrap;
@@ -640,6 +655,15 @@ summary {
 
 .library-money strong {
   color: var(--ink);
+}
+
+.library-expiration {
+  margin-bottom: 14px;
+  padding: 0;
+}
+
+.library-expiration summary {
+  margin-bottom: 10px;
 }
 
 .library-meta {

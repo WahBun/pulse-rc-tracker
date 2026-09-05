@@ -1,13 +1,24 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta id="theme-color" name="theme-color" content="#10171b" />
     <title>Options Strategy Trainer v2</title>
     <meta
       name="description"
       content="极简期权策略训练器：方向、IV、目标三步选择，得到一个主推荐策略和少量备选。"
     />
+    <script>
+      (() => {
+        try {
+          const savedTheme = localStorage.getItem("ost-theme");
+          document.documentElement.dataset.theme = savedTheme || "dark";
+        } catch {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -27,17 +38,39 @@
           </span>
         </a>
 
-        <nav class="tabs" aria-label="主要页面">
-          <button class="tab is-active" type="button" data-view="guide">
-            决策向导 <span>(Guide)</span>
+        <div class="top-actions">
+          <nav class="tabs" aria-label="主要页面">
+            <button class="tab is-active" type="button" data-view="guide">
+              决策向导 <span>(Guide)</span>
+            </button>
+            <button class="tab" type="button" data-view="library">
+              策略库 <span>(Library)</span>
+            </button>
+            <button class="tab" type="button" data-view="cases">
+              案例训练 <span>(Cases)</span>
+            </button>
+          </nav>
+
+          <button class="theme-toggle" id="theme-toggle" type="button" aria-label="当前为黑夜模式，点击切换到白天模式">
+            <span class="theme-toggle-icon" aria-hidden="true">
+              <svg class="sun-icon" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2" />
+                <path d="M12 20v2" />
+                <path d="M4.93 4.93l1.41 1.41" />
+                <path d="M17.66 17.66l1.41 1.41" />
+                <path d="M2 12h2" />
+                <path d="M20 12h2" />
+                <path d="M4.93 19.07l1.41-1.41" />
+                <path d="M17.66 6.34l1.41-1.41" />
+              </svg>
+              <svg class="moon-icon" viewBox="0 0 24 24">
+                <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a7.8 7.8 0 1 0 10.5 10.5Z" />
+              </svg>
+            </span>
+            <span id="theme-toggle-label">黑夜</span>
           </button>
-          <button class="tab" type="button" data-view="library">
-            策略库 <span>(Library)</span>
-          </button>
-          <button class="tab" type="button" data-view="cases">
-            案例训练 <span>(Cases)</span>
-          </button>
-        </nav>
+        </div>
       </header>
 
       <main>

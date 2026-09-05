@@ -1,4 +1,4 @@
-const CACHE_NAME = "pulse-rc-github-pages-v17";
+const CACHE_NAME = "pulse-rc-github-pages-v18";
 const APP_SHELL = [
   "./",
   "./index.html",

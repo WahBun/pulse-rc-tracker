@@ -1,3 +1,45 @@
+const THEME_KEY = "ost-theme";
+const DEFAULT_THEME = "dark";
+
+function safeGetTheme() {
+  try {
+    return localStorage.getItem(THEME_KEY) || DEFAULT_THEME;
+  } catch {
+    return DEFAULT_THEME;
+  }
+}
+
+function safeSaveTheme(theme) {
+  try {
+    localStorage.setItem(THEME_KEY, theme);
+  } catch {
+    // Local files can still work when browser storage is unavailable.
+  }
+}
+
+function applyTheme(theme) {
+  const nextTheme = theme === "light" ? "light" : "dark";
+  const isDark = nextTheme === "dark";
+  const toggle = document.querySelector("#theme-toggle");
+  const label = document.querySelector("#theme-toggle-label");
+  const themeColor = document.querySelector("#theme-color");
+
+  document.documentElement.dataset.theme = nextTheme;
+  if (toggle) {
+    toggle.setAttribute("aria-label", isDark ? "当前为黑夜模式，点击切换到白天模式" : "当前为白天模式，点击切换到黑夜模式");
+    toggle.setAttribute("aria-pressed", String(isDark));
+  }
+  if (label) label.textContent = isDark ? "黑夜" : "白天";
+  if (themeColor) themeColor.setAttribute("content", isDark ? "#10171b" : "#f5f7f8");
+}
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.dataset.theme || safeGetTheme();
+  const nextTheme = currentTheme === "dark" ? "light" : "dark";
+  applyTheme(nextTheme);
+  safeSaveTheme(nextTheme);
+}
+
 const strategies = {
   longCall: {
     name: "买入看涨期权",
@@ -491,6 +533,9 @@ function answerCase(button) {
 }
 
 document.addEventListener("click", (event) => {
+  const themeToggle = event.target.closest("#theme-toggle");
+  if (themeToggle) toggleTheme();
+
   const choice = event.target.closest(".choice");
   if (choice && !choice.disabled) selectChoice(choice);
 
@@ -500,6 +545,8 @@ document.addEventListener("click", (event) => {
   const caseOption = event.target.closest(".case-option");
   if (caseOption) answerCase(caseOption);
 });
+
+applyTheme(safeGetTheme());
 
 document.querySelector("#reset-button").addEventListener("click", resetGuide);
 

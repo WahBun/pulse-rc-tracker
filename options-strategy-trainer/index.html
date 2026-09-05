@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Options Strategy Trainer v2</title>
+    <meta
+      name="description"
+      content="极简期权策略训练器：方向、IV、目标三步选择，得到一个主推荐策略和少量备选。"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <a class="brand" href="#guide" aria-label="回到决策向导">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48" role="img">
+              <path d="M8 34h32" />
+              <path d="M10 30c7-18 18-18 28-6" />
+              <path d="M12 38c8-3 15-2 24 2" />
+            </svg>
+          </span>
+          <span>
+            <strong>Options Strategy Trainer</strong>
+            <small>极简版 v2</small>
+          </span>
+        </a>
+
+        <nav class="tabs" aria-label="主要页面">
+          <button class="tab is-active" type="button" data-view="guide">
+            决策向导 <span>(Guide)</span>
+          </button>
+          <button class="tab" type="button" data-view="library">
+            策略库 <span>(Library)</span>
+          </button>
+          <button class="tab" type="button" data-view="cases">
+            案例训练 <span>(Cases)</span>
+          </button>
+        </nav>
+      </header>
+
+      <main>
+        <section class="view is-active" id="guide" aria-labelledby="guide-title">
+          <div class="intro">
+            <p class="kicker">三步决策</p>
+            <h1 id="guide-title">先判断市场，再选择结构。</h1>
+            <p>
+              选择方向、IV 环境和交易目标后，页面会直接给出一个主策略，以及最多两个备选。
+            </p>
+          </div>
+
+          <div class="workspace">
+            <section class="wizard" aria-label="策略决策向导">
+              <div class="step" data-step="direction">
+                <div class="step-heading">
+                  <span>Step 1</span>
+                  <h2>方向观点 <em>(Direction)</em></h2>
+                </div>
+                <div class="choice-grid" role="radiogroup" aria-label="方向观点">
+                  <button class="choice" type="button" data-field="direction" data-value="bullish">
+                    看涨 <span>Bullish</span>
+                  </button>
+                  <button class="choice" type="button" data-field="direction" data-value="bearish">
+                    看跌 <span>Bearish</span>
+                  </button>
+                  <button class="choice" type="button" data-field="direction" data-value="neutral">
+                    中性 <span>Neutral</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="step is-muted" data-step="iv">
+                <div class="step-heading">
+                  <span>Step 2</span>
+                  <h2>隐含波动率 <em>(IV)</em></h2>
+                </div>
+                <div class="choice-grid" role="radiogroup" aria-label="隐含波动率">
+                  <button class="choice" type="button" data-field="iv" data-value="low" disabled>
+                    低 <span>Low</span>
+                  </button>
+                  <button class="choice" type="button" data-field="iv" data-value="normal" disabled>
+                    正常 <span>Normal</span>
+                  </button>
+                  <button class="choice" type="button" data-field="iv" data-value="high" disabled>
+                    高 <span>High</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="step is-muted" data-step="objective">
+                <div class="step-heading">
+                  <span>Step 3</span>
+                  <h2>交易目标 <em>(Objective)</em></h2>
+                </div>
+                <div class="choice-grid objective-grid" role="radiogroup" aria-label="交易目标">
+                  <button class="choice" type="button" data-field="objective" data-value="directional" disabled>
+                    方向交易 <span>Directional</span>
+                  </button>
+                  <button class="choice" type="button" data-field="objective" data-value="income" disabled>
+                    收取权利金 <span>Income</span>
+                  </button>
+                  <button class="choice" type="button" data-field="objective" data-value="own" disabled>
+                    愿意接货 <span>Willing to own stock</span>
+                  </button>
+                  <button class="choice" type="button" data-field="objective" data-value="hedge" disabled>
+                    保护持仓 <span>Hedge</span>
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <aside class="result-shell" aria-live="polite">
+              <div class="result-empty" id="result-empty">
+                <p class="kicker">Recommendation</p>
+                <h2>完成三步后显示结果。</h2>
+                <p>这里会只保留主推荐、关键理由和风险标签。</p>
+              </div>
+
+              <div class="result is-hidden" id="result">
+                <div class="result-topline">
+                  <p class="kicker" id="result-context">Recommendation</p>
+                  <button class="reset-button" type="button" id="reset-button">重选</button>
+                </div>
+
+                <article class="strategy-result" id="main-result"></article>
+
+                <section class="alternatives" id="alternatives" aria-label="备选策略"></section>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="view" id="library" aria-labelledby="library-title">
+          <div class="page-heading">
+            <p class="kicker">Strategy Library</p>
+            <h1 id="library-title">策略库</h1>
+            <p>这里保留常用结构，和首页的决策向导分开。</p>
+          </div>
+          <div class="library-grid" id="library-grid"></div>
+        </section>
+
+        <section class="view" id="cases" aria-labelledby="cases-title">
+          <div class="page-heading">
+            <p class="kicker">Case Trainer</p>
+            <h1 id="cases-title">案例训练</h1>
+            <p>每个场景只练一个判断：方向、IV、目标是否匹配。</p>
+          </div>
+          <div class="case-list" id="case-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>

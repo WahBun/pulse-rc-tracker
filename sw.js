@@ -1,5 +1,16 @@
-const CACHE_NAME = "pulse-rc-github-pages-v16";
-const APP_SHELL = ["./", "./index.html", "./styles.css", "./app.js", "./manifest.webmanifest", "./app-icon.svg"];
+const CACHE_NAME = "pulse-rc-github-pages-v17";
+const APP_SHELL = [
+  "./",
+  "./index.html",
+  "./styles.css",
+  "./app.js",
+  "./manifest.webmanifest",
+  "./app-icon.svg",
+  "./options-strategy-trainer/",
+  "./options-strategy-trainer/index.html",
+  "./options-strategy-trainer/styles.css",
+  "./options-strategy-trainer/app.js",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

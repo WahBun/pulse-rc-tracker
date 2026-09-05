@@ -636,7 +636,7 @@ function renderTerms() {
                   <article class="term-card">
                     <h3>${term.name} <span>${term.english}</span></h3>
                     <p>${term.meaning}</p>
-                    <p class="term-use"><strong>怎么用：</strong>${term.use}</p>
+                    <p class="term-use"><strong>How</strong><span>${term.use}</span></p>
                   </article>
                 `
               )

@@ -709,7 +709,13 @@ summary {
 }
 
 .term-use strong {
+  display: block;
+  margin-bottom: 4px;
   color: var(--ink);
+}
+
+.term-use span {
+  display: block;
 }
 
 .library-grid {

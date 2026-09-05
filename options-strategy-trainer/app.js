@@ -44,6 +44,7 @@ const strategies = {
   longCall: {
     name: "买入看涨期权",
     english: "Long Call",
+    structure: "买入 ATM 或略 OTM 的 Call。",
     why: "适合强看涨且 IV 偏低时，用有限权利金换取向上凸性。",
     avoid: "IV 已经很高、只小幅看涨，或时间不站在你这边时，不适合裸买 Call。",
     greeks: { Delta: "+", Gamma: "+", Theta: "-", Vega: "+" },
@@ -54,6 +55,7 @@ const strategies = {
   bullCallSpread: {
     name: "牛市看涨价差",
     english: "Bull Call Debit Spread",
+    structure: "买入较低执行价 Call（ATM/略 ITM）+ 卖出较高执行价 OTM Call。",
     why: "适合看涨但不想为高 IV 付太多权利金，用卖出上方 Call 降低成本。",
     avoid: "如果你预期会大幅突破上方行权价，价差会限制最大收益。",
     greeks: { Delta: "+", Gamma: "+/0", Theta: "-/0", Vega: "+/0" },
@@ -64,6 +66,7 @@ const strategies = {
   bullPutSpread: {
     name: "牛市认沽信用价差",
     english: "Bull Put Credit Spread",
+    structure: "卖出较高执行价 OTM Put + 买入更低执行价 OTM Put；这是两条 Put 腿，不用 Call。",
     why: "适合温和看涨或不看跌，尤其在 IV 偏高时用时间价值换取胜率。",
     avoid: "如果你认为标的可能快速跌破卖出 Put，信用价差会很难管理。",
     greeks: { Delta: "+", Gamma: "-", Theta: "+", Vega: "-" },
@@ -74,6 +77,7 @@ const strategies = {
   cashSecuredPut: {
     name: "现金担保卖出认沽",
     english: "Cash-Secured Put",
+    structure: "卖出 OTM Put，并预留足够现金准备被指派接货。",
     why: "适合看涨或愿意更低价格买入正股，IV 偏高时能收取更厚权利金。",
     avoid: "如果你不愿意接货，或标的基本面可能快速恶化，不该用这个结构。",
     greeks: { Delta: "+", Gamma: "-", Theta: "+", Vega: "-" },
@@ -84,6 +88,7 @@ const strategies = {
   longPut: {
     name: "买入看跌期权",
     english: "Long Put",
+    structure: "买入 ATM 或略 OTM 的 Put。",
     why: "适合强看跌且 IV 偏低时，用有限权利金表达下跌观点。",
     avoid: "IV 高或只是温和看跌时，权利金成本可能吞掉判断优势。",
     greeks: { Delta: "-", Gamma: "+", Theta: "-", Vega: "+" },
@@ -94,6 +99,7 @@ const strategies = {
   bearPutSpread: {
     name: "熊市看跌价差",
     english: "Bear Put Debit Spread",
+    structure: "买入较高执行价 Put（ATM/略 ITM）+ 卖出较低执行价 OTM Put。",
     why: "适合看跌但希望控制成本，卖出更低行权价 Put 抵消一部分 IV 和时间成本。",
     avoid: "如果你预期会暴跌，价差会限制下方收益。",
     greeks: { Delta: "-", Gamma: "+/0", Theta: "-/0", Vega: "+/0" },
@@ -104,6 +110,7 @@ const strategies = {
   bearCallSpread: {
     name: "熊市看涨信用价差",
     english: "Bear Call Credit Spread",
+    structure: "卖出较低执行价 OTM Call + 买入更高执行价 OTM Call。",
     why: "适合温和看跌或不看涨，IV 偏高时通过卖出上方 Call 收取权利金。",
     avoid: "如果标的可能快速突破卖出 Call，亏损会放大到价差上限。",
     greeks: { Delta: "-", Gamma: "-", Theta: "+", Vega: "-" },
@@ -114,6 +121,7 @@ const strategies = {
   protectivePut: {
     name: "保护性认沽",
     english: "Protective Put",
+    structure: "持有正股 + 买入 ATM 或 OTM Put 做下方保护。",
     why: "适合已有正股但担心下跌，用 Put 给仓位加一个明确的下方保护。",
     avoid: "如果 IV 很高且只是轻微担心，保险费可能过贵。",
     greeks: { Delta: "+/0", Gamma: "+", Theta: "-", Vega: "+" },
@@ -124,6 +132,7 @@ const strategies = {
   collar: {
     name: "领口策略",
     english: "Collar",
+    structure: "持有正股 + 买入 OTM Put + 卖出 OTM Call。",
     why: "适合已有正股、想保护下跌，同时愿意卖出上方收益来降低保险成本。",
     avoid: "如果你不愿意牺牲大涨空间，就不适合卖出上方 Call。",
     greeks: { Delta: "+/0", Gamma: "0", Theta: "+/0", Vega: "-/0" },
@@ -134,6 +143,7 @@ const strategies = {
   coveredCall: {
     name: "备兑看涨",
     english: "Covered Call",
+    structure: "持有正股 + 卖出 OTM Call。",
     why: "适合已有正股、温和看涨或横盘，用卖出 Call 增加收入。",
     avoid: "如果你不愿意在行权价卖出股票，或预期会急涨，不适合备兑。",
     greeks: { Delta: "+", Gamma: "-", Theta: "+", Vega: "-" },
@@ -144,6 +154,7 @@ const strategies = {
   ironCondor: {
     name: "铁鹰",
     english: "Iron Condor",
+    structure: "卖出 OTM Put + 买入更低 OTM Put，同时卖出 OTM Call + 买入更高 OTM Call。",
     why: "适合中性观点且 IV 偏高，卖出上下两侧区间来收取时间价值。",
     avoid: "如果你预期会出现单边大波动，铁鹰容易被突破。",
     greeks: { Delta: "0", Gamma: "-", Theta: "+", Vega: "-" },
@@ -154,6 +165,7 @@ const strategies = {
   calendar: {
     name: "日历价差",
     english: "Calendar Spread",
+    structure: "同一执行价附近，买入远月 Call/Put + 卖出近月同方向 Call/Put，常放在 ATM 附近。",
     why: "适合中性或温和方向、近月 IV 较高而远月相对合理时，利用时间结构。",
     avoid: "如果价格可能迅速远离中心行权价，日历价差会失去优势。",
     greeks: { Delta: "0/+", Gamma: "-", Theta: "+", Vega: "+" },
@@ -164,6 +176,7 @@ const strategies = {
   longStraddle: {
     name: "买入跨式",
     english: "Long Straddle",
+    structure: "买入 ATM Call + 买入 ATM Put。",
     why: "适合 IV 偏低但预期会出现大波动，方向不确定也可以表达波动观点。",
     avoid: "如果 IV 已经很高或预期只是小幅震荡，时间损耗会很重。",
     greeks: { Delta: "0", Gamma: "+", Theta: "-", Vega: "+" },
@@ -319,6 +332,10 @@ function strategyCard(key, options = {}) {
       <strong>${strategy.name}</strong>
       <span>${strategy.english}</span>
     </div>
+    <div class="field-block structure-block">
+      <h3>结构 (Legs)</h3>
+      <p>${strategy.structure}</p>
+    </div>
     <div class="field-block">
       <h3>Why</h3>
       <p>${strategy.why}</p>
@@ -468,6 +485,7 @@ function renderLibrary() {
         <article class="library-card">
           <h2>${item.name}</h2>
           <p>${item.english}</p>
+          <p class="structure-line">${item.structure}</p>
           <p>${item.why}</p>
           <div class="library-meta">
             ${greekTags(item.greeks)}

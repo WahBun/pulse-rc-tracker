@@ -432,6 +432,12 @@ h3 {
   margin-bottom: 0;
 }
 
+.structure-block p,
+.structure-line {
+  color: var(--ink);
+  font-weight: 680;
+}
+
 .tag-row {
   display: flex;
   flex-wrap: wrap;
@@ -578,6 +584,10 @@ summary {
 .library-card p,
 .case-card p {
   color: var(--muted);
+}
+
+.library-card .structure-line {
+  color: var(--ink);
 }
 
 .library-meta {

@@ -299,7 +299,8 @@ const labels = {
 const state = {
   direction: "",
   iv: "",
-  objective: ""
+  objective: "",
+  paContext: ""
 };
 
 const termSections = [
@@ -498,6 +499,118 @@ const cases = [
   }
 ];
 
+const paContexts = [
+  {
+    id: "trend-strong-up",
+    group: "Strong Trend",
+    subtype: "Up",
+    title: "强趋势向上",
+    read: "连续 HH/HL，回调浅，突破后接受良好，重点是跟随主方向。",
+    direction: "bullish",
+    iv: "low",
+    objective: "directional",
+    main: "longCall",
+    alternatives: ["bullCallSpread", "bullPutSpread"],
+    note: "强趋势赚方向和速度；IV 偏高时，用价差控制权利金。"
+  },
+  {
+    id: "trend-strong-down",
+    group: "Strong Trend",
+    subtype: "Down",
+    title: "强趋势向下",
+    read: "连续 LH/LL，反抽弱，跌破后接受良好，重点是顺势看下方。",
+    direction: "bearish",
+    iv: "low",
+    objective: "directional",
+    main: "longPut",
+    alternatives: ["bearPutSpread", "bearCallSpread"],
+    note: "IV 不贵时，买方结构能更直接表达下跌速度。"
+  },
+  {
+    id: "trend-weak-up",
+    group: "Weak Trend",
+    subtype: "Up",
+    title: "弱趋势向上",
+    read: "仍偏多，但推进变慢，更像在支撑上方磨，不适合追高。",
+    direction: "bullish",
+    iv: "high",
+    objective: "income",
+    main: "bullPutSpread",
+    alternatives: ["cashSecuredPut", "bullCallSpread"],
+    note: "弱趋势不一定要追方向，可以卖一个“别跌破”的观点。"
+  },
+  {
+    id: "trend-weak-down",
+    group: "Weak Trend",
+    subtype: "Down",
+    title: "弱趋势向下",
+    read: "仍偏空，但下跌变慢，更像在压力下方磨，不适合追空。",
+    direction: "bearish",
+    iv: "high",
+    objective: "income",
+    main: "bearCallSpread",
+    alternatives: ["bearPutSpread", "ironCondor"],
+    note: "弱趋势向下，更适合卖一个“别突破压力”的观点。"
+  },
+  {
+    id: "tr-low",
+    group: "TR",
+    subtype: "Low IV",
+    title: "TR + 低 IV，等离开区间",
+    read: "价格在区间里越压越紧，方向不确定，但你觉得波动快要放大。",
+    direction: "neutral",
+    iv: "low",
+    objective: "directional",
+    main: "longStraddle",
+    alternatives: ["calendar", "bullCallSpread"],
+    note: "TR 里低 IV 时，重点不是押方向，而是押波动被低估。"
+  },
+  {
+    id: "tr-high",
+    group: "TR",
+    subtype: "High IV",
+    title: "TR + 高 IV，继续横盘",
+    read: "价格仍在区间中部，市场给的 IV 偏贵，你判断短期还出不去。",
+    direction: "neutral",
+    iv: "high",
+    objective: "income",
+    main: "ironCondor",
+    alternatives: ["calendar", "coveredCall"],
+    note: "TR 里高 IV 时，更像卖区间；核心风险是边界被突破。"
+  },
+  {
+    id: "tr-calendar",
+    group: "TR",
+    subtype: "Time Spread",
+    title: "TR + 近月磨，远月可能动",
+    read: "短期大概率还在中心附近消耗，但后面可能有新的方向或事件。",
+    direction: "neutral",
+    iv: "normal",
+    objective: "directional",
+    main: "calendar",
+    alternatives: ["longStraddle", "ironCondor"],
+    note: "Calendar 交易的是现在的时间 vs 未来的时间，不只是方向。"
+  }
+];
+
+const paContextGroups = [
+  {
+    title: "Strong Trend",
+    subtitle: "强趋势",
+    contextIds: ["trend-strong-up", "trend-strong-down"]
+  },
+  {
+    title: "Weak Trend",
+    subtitle: "弱趋势",
+    contextIds: ["trend-weak-up", "trend-weak-down"]
+  },
+  {
+    title: "TR",
+    subtitle: "Trading Range",
+    contextIds: ["tr-low", "tr-high", "tr-calendar"]
+  }
+];
+
 function recommend({ direction, iv, objective }) {
   if (objective === "hedge") {
     if (iv === "high") return pick("collar", ["protectivePut", "coveredCall"]);
@@ -550,14 +663,34 @@ function pick(main, alternatives) {
   return { main, alternatives: alternatives.slice(0, 2) };
 }
 
+function findPaContext(id) {
+  return paContexts.find((item) => item.id === id);
+}
+
+function paMatchesForStrategy(key) {
+  return paContexts
+    .filter((context) => context.main === key || context.alternatives.includes(key))
+    .slice(0, 2);
+}
+
 function strategyCard(key, options = {}) {
   const strategy = strategies[key];
   const tagClass = options.compact ? "tag-row compact-tags" : "tag-row";
+  const contextBlock = options.context
+    ? `
+      <div class="field-block context-result">
+        <h3>PA Context</h3>
+        <p>${options.context.title}</p>
+        <span>${options.context.note}</span>
+      </div>
+    `
+    : "";
   return `
     <div class="strategy-name">
       <strong>${strategy.name}</strong>
       <span>${strategy.english}</span>
     </div>
+    ${contextBlock}
     <div class="field-block structure-block">
       <h3>结构 (Legs)</h3>
       <p>${strategy.structure}</p>
@@ -648,14 +781,53 @@ function renderTerms() {
     .join("");
 }
 
+function renderPaContexts() {
+  document.querySelector("#pa-context-grid").innerHTML = paContextGroups
+    .map((group) => {
+      const contexts = group.contextIds.map(findPaContext).filter(Boolean);
+      return `
+        <section class="pa-context-group" aria-label="${group.title}">
+          <div class="pa-context-group-heading">
+            <h3>${group.title}</h3>
+            <span>${group.subtitle}</span>
+          </div>
+          <div class="pa-context-group-list">
+            ${contexts
+              .map(
+                (context) => `
+                  <button class="pa-context-card" type="button" data-pa-context="${context.id}">
+                    <span class="context-kind">${context.group} / ${context.subtype}</span>
+                    <span class="context-title">${context.title}</span>
+                    <span class="context-read">${context.read}</span>
+                    <span class="context-badges">
+                      <span>${labels.direction[context.direction]}</span>
+                      <span>${labels.iv[context.iv]}</span>
+                      <span>${strategies[context.main].english}</span>
+                    </span>
+                  </button>
+                `
+              )
+              .join("")}
+          </div>
+        </section>
+      `;
+    })
+    .join("");
+}
+
 function renderRecommendation() {
   if (!state.direction || !state.iv || !state.objective) return;
 
-  const result = recommend(state);
-  const context = `${labels.direction[state.direction]} / ${labels.iv[state.iv]} / ${labels.objective[state.objective]}`;
+  const paContext = findPaContext(state.paContext);
+  const result = paContext
+    ? pick(paContext.main, paContext.alternatives)
+    : recommend(state);
+  const context = paContext
+    ? `PA：${paContext.title} / ${labels.direction[state.direction]} / ${labels.iv[state.iv]}`
+    : `${labels.direction[state.direction]} / ${labels.iv[state.iv]} / ${labels.objective[state.objective]}`;
 
   document.querySelector("#result-context").textContent = context;
-  document.querySelector("#main-result").innerHTML = strategyCard(result.main);
+  document.querySelector("#main-result").innerHTML = strategyCard(result.main, { context: paContext });
   document.querySelector("#alternatives").innerHTML = `
     <p class="kicker">Alternatives</p>
     ${result.alternatives
@@ -692,14 +864,44 @@ function lockStep(field) {
   });
 }
 
+function syncWizardSelections() {
+  document.querySelectorAll(".choice").forEach((button) => {
+    button.classList.toggle("is-selected", state[button.dataset.field] === button.dataset.value);
+  });
+}
+
+function syncPaContextSelections() {
+  document.querySelectorAll(".pa-context-card").forEach((button) => {
+    button.classList.toggle("is-selected", button.dataset.paContext === state.paContext);
+  });
+}
+
+function applyPaContext(id) {
+  const context = findPaContext(id);
+  if (!context) return;
+
+  state.direction = context.direction;
+  state.iv = context.iv;
+  state.objective = context.objective;
+  state.paContext = context.id;
+
+  unlockStep("iv");
+  unlockStep("objective");
+  syncWizardSelections();
+  syncPaContextSelections();
+  renderRecommendation();
+}
+
 function selectChoice(button) {
   const field = button.dataset.field;
   const value = button.dataset.value;
   state[field] = value;
+  state.paContext = "";
 
   document
     .querySelectorAll(`[data-field="${field}"]`)
     .forEach((item) => item.classList.toggle("is-selected", item === button));
+  syncPaContextSelections();
 
   if (field === "direction") {
     state.iv = "";
@@ -729,9 +931,11 @@ function resetGuide() {
   state.direction = "";
   state.iv = "";
   state.objective = "";
+  state.paContext = "";
   document.querySelectorAll(".choice").forEach((button) => {
     button.classList.remove("is-selected");
   });
+  syncPaContextSelections();
   lockStep("iv");
   lockStep("objective");
   hideResult();
@@ -756,6 +960,9 @@ function renderLibrary() {
           <h2>${item.name}</h2>
           <p>${item.english}</p>
           <p class="structure-line">${item.structure}</p>
+          <p class="library-context"><strong>常见 PA：</strong>${paMatchesForStrategy(key)
+            .map((context) => context.title)
+            .join(" / ") || "根据方向和 IV 再判断"}</p>
           <div class="library-money">
             <p><strong>赚：</strong>${item.profit}</p>
             <p><strong>亏：</strong>${item.loss}</p>
@@ -840,6 +1047,9 @@ document.addEventListener("click", (event) => {
   const tab = event.target.closest(".tab");
   if (tab) switchView(tab.dataset.view);
 
+  const paContext = event.target.closest(".pa-context-card");
+  if (paContext) applyPaContext(paContext.dataset.paContext);
+
   const viewLink = event.target.closest("[data-view-link]");
   if (viewLink) {
     event.preventDefault();
@@ -856,6 +1066,7 @@ document.querySelector("#reset-button").addEventListener("click", resetGuide);
 
 renderLibrary();
 renderCases();
+renderPaContexts();
 
 const startingView = window.location.hash.replace("#", "");
 renderTerms();

@@ -7,7 +7,7 @@
     <title>Options Strategy Trainer v2</title>
     <meta
       name="description"
-      content="极简期权策略训练器：先理解常见术语，再用方向、IV、目标三步选择策略。"
+      content="极简期权策略训练器：先理解术语，再用 PA 背景、方向、IV、目标选择策略。"
     />
     <script>
       (() => {
@@ -19,7 +19,7 @@
         }
       })();
     </script>
-    <link rel="stylesheet" href="styles.css?v=ost-v25" />
+    <link rel="stylesheet" href="styles.css?v=ost-v26" />
   </head>
   <body>
     <div class="shell">
@@ -104,9 +104,20 @@
             <p class="kicker">三步决策</p>
             <h1 id="guide-title">先判断市场，再选择结构。</h1>
             <p>
-              选择方向、IV 环境和交易目标后，页面会直接给出一个主策略，以及最多两个备选。
+              可以先从 PA 背景进入，也可以继续用方向、IV 和交易目标三步判断。
             </p>
           </div>
+
+          <section class="context-panel" aria-labelledby="context-title">
+            <div class="context-heading">
+              <div>
+                <p class="kicker">PA Context</p>
+                <h2 id="context-title">从市场背景开始判断</h2>
+              </div>
+              <p>先分 Strong Trend、Weak Trend、TR，再看 IV 和交易目标。</p>
+            </div>
+            <div class="pa-context-grid" id="pa-context-grid"></div>
+          </section>
 
           <div class="workspace">
             <section class="wizard" aria-label="策略决策向导">
@@ -209,7 +220,7 @@
       </main>
     </div>
 
-    <script src="app.js?v=ost-v25" defer></script>
+    <script src="app.js?v=ost-v26" defer></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
